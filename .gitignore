@@ -1,0 +1,18 @@
+# 逆向中间产物
+# extract/ 是厂商 Windows 安装包解出来的文件（含厂商二进制），src/ 是
+# ilspycmd 反编译的 C# 源码。两者体积大、版权归厂商，不入库。
+extract/
+src/
+
+# 打包产物（由 tools/build_release.py 生成）
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# 本地测试与临时文件
+.t*/
+*.log
+.DS_Store

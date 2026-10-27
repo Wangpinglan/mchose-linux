@@ -1,0 +1,16 @@
+{
+  "uuid": "mchose-mouse@local",
+  "name": "MCHOSE Mouse",
+  "description": "MCHOSE / 迈从 A5、AX5 Pro 系列鼠标的控制面板：查看电量、调节 DPI、切换回报率，以及静默高度、按键消抖等高级设置。通过逆向原厂 Windows 驱动实现，直接在 Linux 下与鼠标的 HID 配置接口通信，无需 Wine。",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50",
+    "51"
+  ],
+  "url": "https://github.com/wangpinglan/mchose-linux",
+  "version": 1
+}

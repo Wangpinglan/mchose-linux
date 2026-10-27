@@ -1,0 +1,277 @@
+/* MCHOSE 鼠标面板 — 视觉样式
+ * 用 GNOME Shell 内置的语义色，避免跟浅/深主题打架
+ */
+
+/* ---------- 面板 ---------- */
+
+.mchose-panel-label {
+    font-feature-settings: "tnum";
+    font-size: 0.92em;
+    margin-left: 2px;
+}
+
+.mchose-panel-dim {
+    opacity: 0.6;
+    font-weight: normal;
+}
+
+/* ---------- 概览卡片 ---------- */
+
+.mchose-overview {
+    spacing: 14px;
+    padding: 6px 4px 10px 4px;
+    min-width: 300px;
+}
+
+.mchose-overview-icon {
+    color: -st-accent-color;
+    opacity: 0.9;
+}
+
+.mchose-overview-text {
+    spacing: 3px;
+}
+
+.mchose-model {
+    font-weight: bold;
+    font-size: 1.06em;
+}
+
+.mchose-dim {
+    opacity: 0.62;
+    font-size: 0.86em;
+    font-feature-settings: "tnum";
+}
+
+.mchose-battery-ring {
+    margin: 2px 6px 2px 2px;
+}
+
+/* ---------- 分组 ---------- */
+
+.mchose-section {
+    spacing: 8px;
+    min-width: 300px;
+    padding: 4px 0 6px 0;
+}
+
+.mchose-section-title {
+    font-size: 0.78em;
+    font-weight: bold;
+    opacity: 0.55;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+}
+
+.mchose-row {
+    spacing: 10px;
+    min-height: 28px;
+}
+
+.mchose-row-label {
+    font-size: 0.94em;
+}
+
+.mchose-hint {
+    font-size: 0.78em;
+    opacity: 0.5;
+}
+
+/* ---------- 数值 ---------- */
+
+.mchose-section-header {
+    spacing: 8px;
+    margin-bottom: 2px;
+}
+
+.mchose-dpi-current {
+    font-size: 0.92em;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: -st-accent-color;
+}
+
+/* ---------- DPI 档位：3 列 × 2 行，每档都能直接输入 ---------- */
+
+.mchose-dpi-row {
+    spacing: 6px;
+}
+
+.mchose-dpi-cell {
+    border-radius: 7px;
+    padding: 1px 4px 1px 1px;
+    spacing: 2px;
+    background-color: rgba(128, 128, 128, 0.10);
+    transition-duration: 120ms;
+}
+
+.mchose-dpi-cell:hover {
+    background-color: rgba(128, 128, 128, 0.20);
+}
+
+.mchose-dpi-cell-active {
+    background-color: -st-accent-color;
+}
+
+.mchose-dot-btn {
+    padding: 2px;
+    border-radius: 6px;
+    background-color: transparent;
+    border: none;
+    min-width: 12px;
+    min-height: 12px;
+}
+
+.mchose-dot-btn:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.mchose-stage-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.30);
+}
+
+.mchose-dpi-input {
+    font-size: 0.86em;
+    font-feature-settings: "tnum";
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    padding: 0 2px;
+    min-width: 54px;
+}
+
+.mchose-dpi-input:hover {
+    background-color: rgba(128, 128, 128, 0.16);
+}
+
+.mchose-dpi-input:focus {
+    background-color: rgba(0, 0, 0, 0.28);
+    border-color: -st-accent-fg-color;
+}
+
+.mchose-dpi-cell-active .mchose-dpi-input {
+    color: -st-accent-fg-color;
+    font-weight: bold;
+}
+
+/* 旧版界面（拆 shell/impl 之前的缓存模块）仍在用的类名。
+ * CSS 每次 enable 都会重新加载，JS 不会，所以过渡期两套都要在，
+ * 否则老模块会渲染成没有圆角框的裸文字。新版 impl.js 不走这些类。 */
+
+.mchose-dpi-entry {
+    font-size: 1.4em;
+    font-weight: bold;
+    font-feature-settings: "tnum";
+    color: -st-accent-color;
+    background-color: rgba(128, 128, 128, 0.14);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    padding: 1px 10px;
+    min-width: 84px;
+}
+
+.mchose-dpi-entry:focus {
+    border-color: -st-accent-color;
+}
+
+.mchose-stage-box {
+    spacing: 4px;
+}
+
+.mchose-stage-btn {
+    border-radius: 7px;
+    padding: 3px 8px;
+    background-color: rgba(128, 128, 128, 0.14);
+    transition-duration: 120ms;
+}
+
+.mchose-stage-btn:hover {
+    background-color: rgba(128, 128, 128, 0.26);
+}
+
+.mchose-stage-active {
+    background-color: -st-accent-color;
+}
+
+.mchose-stage-label {
+    font-size: 0.82em;
+    font-feature-settings: "tnum";
+}
+
+.mchose-stage-inner {
+    spacing: 4px;
+}
+
+.mchose-stage-active .mchose-stage-label {
+    color: -st-accent-fg-color;
+    font-weight: bold;
+}
+
+/* 小号数字输入框（休眠时间等） */
+.mchose-mini-input {
+    font-size: 0.9em;
+    font-feature-settings: "tnum";
+    background-color: rgba(128, 128, 128, 0.14);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 1px 6px;
+    min-width: 52px;
+}
+
+.mchose-mini-input:hover {
+    background-color: rgba(128, 128, 128, 0.22);
+}
+
+.mchose-mini-input:focus {
+    border-color: -st-accent-color;
+    background-color: rgba(128, 128, 128, 0.20);
+}
+
+/* 注意：St 的 CSS margin 是无符号值，写负 margin 会溢出成 2^32，
+ * 把整行（乃至整个菜单）的首选宽度撑爆，表现为面板「点不开」/宽度为 0。
+ * 需要视觉上贴紧就用 padding 或减少 spacing，绝不要用负 margin。 */
+.mchose-unit {
+    font-size: 0.82em;
+    opacity: 0.55;
+}
+
+/* ---------- 通用 chip ---------- */
+
+.mchose-chip-row {
+    spacing: 5px;
+}
+
+.mchose-chip {
+    border-radius: 7px;
+    padding: 3px 10px;
+    background-color: rgba(128, 128, 128, 0.14);
+    transition-duration: 120ms;
+}
+
+.mchose-chip:hover {
+    background-color: rgba(128, 128, 128, 0.26);
+}
+
+.mchose-chip-active {
+    background-color: -st-accent-color;
+}
+
+.mchose-chip-label {
+    font-size: 0.82em;
+    font-feature-settings: "tnum";
+}
+
+.mchose-chip-active .mchose-chip-label {
+    color: -st-accent-fg-color;
+    font-weight: bold;
+}
+
+/* ---------- 滑块 ---------- */
+
+.mchose-section .slider {
+    margin-top: 2px;
+}
