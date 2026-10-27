@@ -94,7 +94,22 @@ gnome-extensions install --force dist/mchose-mouse@local.shell-extension.zip
 python3 tools/build_release.py
 ```
 
-`dist/.src` 是打包输入：Python 侧取自本仓库，JS/CSS/metadata 取自已安装的扩展。
+`dist/.src` 是每次打包时从仓库自动收集的中间目录，不用手动维护。
+
+### 发布新版本
+
+```bash
+python3 tools/build_release.py
+```
+
+然后在 GitHub 上新建 Release（tag 形如 `v1.0`），把这两个文件作为附件上传：
+
+| 文件 | 用途 |
+|---|---|
+| `dist/install-mchose.sh` | 一键安装脚本，README 顶部的 `curl` 命令依赖它 |
+| `dist/mchose-mouse@local.shell-extension.zip` | 标准扩展包，可 `gnome-extensions install` |
+
+**文件名不要改**，`releases/latest/download/<文件名>` 是按名字取附件的。
 
 ## 用法
 
