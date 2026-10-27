@@ -259,10 +259,15 @@ def pick_device(prefer_path=None):
             if d.path == prefer_path:
                 return d
         return None
-    # 优先选 feature report 长度 == 64 的那个（配置接口）
-    for d in devs:
-        if getattr(d, "feature_len", 0) >= 64:
-            return d
+    # 优先选 feature report 长度 >= 64 的配置接口。
+    # 插着线时接收器往往还挂在机器上，会同时出现两个配置接口；
+    # 非接收器 PID 才是鼠标本体（F017/F019/F022/F026），优先它。
+    cands = [d for d in devs if getattr(d, "feature_len", 0) >= 64]
+    if cands:
+        for d in cands:
+            if d.pid not in DONGLE_PIDS:
+                return d
+        return cands[0]
     # 退而求其次：忽略 bootloader
     for d in devs:
         if d.pid not in (0xF016, 0xF012, 0xF018, 0xF025, 0xF021, 0xF023):
@@ -849,7 +854,7 @@ def with_dev(dev, fn):
         print(e)
         print("把当前用户加入 input 组并重登：")
         print("  sudo usermod -aG input $USER")
-        print("或者确认 /etc/udev/rules.d/99-mchose.rules 已生效"
+        print("或者确认 /etc/udev/rules.d/70-mchose.rules 已生效"
               "（sudo udevadm control --reload && sudo udevadm trigger）")
         return
     try:

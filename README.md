@@ -64,7 +64,7 @@ sudo 整个脚本会让 `HOME` 变成 `/root`，扩展装进 root 家目录，�
 
 1. 解包到 `~/.local/share/gnome-shell/extensions/mchose-mouse@local/`
 2. 装命令行工具到 `~/.local/bin/mchose`
-3. 写 `/etc/udev/rules.d/99-mchose.rules`（要一次 sudo），让普通用户读写 hidraw
+3. 写 `/etc/udev/rules.d/70-mchose.rules`（要一次 sudo），让普通用户读写 hidraw
 4. 把 uuid 加进 `enabled-extensions`
 
 **首次安装必须注销重登** —— GNOME 只在启动时扫描扩展目录，新目录当场看不见。
@@ -190,6 +190,11 @@ self.xfer_write(group, code, params, length=len(params))
 
 ## 已知坑
 
+- **udev 规则必须以 `70-` 开头**。`systemd` 在 `73-seat-late.rules` 里才有
+  `TAG=="uaccess" ... RUN{builtin}+="uaccess"`，把标签变成 ACL；放在 `99-` 里
+  标签加得太晚，规则里的 `TAG+="uaccess"` 不会生效，表现就是面板报
+  「没有权限打开 /dev/hidrawN」——有线、无线切换后节点重新枚举时尤其明显。
+  （旧的 `99-mchose.rules` 安装脚本会自动删掉。）
 - **设备休眠时 HID 通道会断**。读不到就动一下鼠标唤醒，再试。
 - 一个鼠标会枚举出 3～4 个 hidraw 节点（键盘接口、鼠标接口、Consumer 接口、
   配置接口）。只有配置接口的 Feature Report 长度是 65，`mchose list` 会标出来。
@@ -209,7 +214,7 @@ self.xfer_write(group, code, params, length=len(params))
 mchose.py                 命令行工具 + 协议实现（零依赖，仅标准库）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
 install.sh                本机开发用：装 CLI 与 udev 规则
-99-mchose.rules           udev 权限规则
+70-mchose.rules           udev 权限规则
 
 extension/                GNOME 扩展源码
   metadata.json

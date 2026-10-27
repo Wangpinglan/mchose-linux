@@ -95,13 +95,14 @@ if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]
 
     if [ "$DO_UDEV" -eq 1 ]; then
         if [ "$UNINSTALL" -eq 1 ]; then
-            if [ -f "$RULE" ]; then
-                rm -f "$RULE"
+            if [ -f "$RULE" ] || [ -f "$RULE_OLD" ]; then
+                rm -f "$RULE" "$RULE_OLD"
                 udevadm control --reload-rules 2>/dev/null || true
                 ok "已删除 udev 规则"
             fi
         else
             printf '%s\n' "$RULE_TEXT" > "$RULE"
+            rm -f "$RULE_OLD"
             udevadm control --reload-rules 2>/dev/null || true
             udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
             ok "udev 规则已写入 $RULE"
@@ -136,7 +137,9 @@ fi
 
 DEST="$HOME/.local/share/gnome-shell/extensions/$UUID"
 BIN="$HOME/.local/bin/mchose"
-RULE=/etc/udev/rules.d/99-mchose.rules
+RULE=/etc/udev/rules.d/70-mchose.rules
+# 老版本装的名字：uaccess 标签加得太晚（73-seat-late 之后），ACL 不生效，升级时删掉
+RULE_OLD=/etc/udev/rules.d/99-mchose.rules
 # 单引号包裹：内容里有双引号，绝不能放进双引号字符串里，否则引号会被 shell 吃掉
 RULE_TEXT='@@RULE@@'
 
@@ -152,15 +155,15 @@ if [ "$UNINSTALL" -eq 1 ]; then
         rm -f "$BIN"
         ok "已删除命令行工具"
     fi
-    if [ "$DO_UDEV" -eq 1 ] && [ -f "$RULE" ]; then
+    if [ "$DO_UDEV" -eq 1 ] && { [ -f "$RULE" ] || [ -f "$RULE_OLD" ]; }; then
         if [ "$(id -u)" -eq 0 ]; then
-            rm -f "$RULE"
+            rm -f "$RULE" "$RULE_OLD"
             if command -v udevadm >/dev/null 2>&1; then
                 udevadm control --reload-rules 2>/dev/null || true
             fi
             ok "已删除 udev 规则"
         elif command -v sudo >/dev/null 2>&1; then
-            sudo rm -f "$RULE"
+            sudo rm -f "$RULE" "$RULE_OLD"
             sudo udevadm control --reload-rules 2>/dev/null || true
             ok "已删除 udev 规则"
         else
@@ -261,12 +264,14 @@ if [ "$DO_UDEV" -eq 1 ]; then
 
     if [ "$(id -u)" -eq 0 ]; then
         printf '%s\n' "$RULE_TEXT" > "$RULE"
+        rm -f "$RULE_OLD"
         udevadm control --reload-rules 2>/dev/null || true
         udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
         ok "已写入 $RULE"
     elif command -v sudo >/dev/null 2>&1; then
         say "需要 sudo 写 $RULE（只加一条 hidraw 权限规则）"
         if printf '%s\n' "$RULE_TEXT" | sudo tee "$RULE" >/dev/null; then
+            sudo rm -f "$RULE_OLD"
             sudo udevadm control --reload-rules 2>/dev/null || true
             sudo udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
             ok "已写入 $RULE"
@@ -371,7 +376,7 @@ if [ "$WAS_ENABLED" -eq 1 ]; then
 fi
 if [ "$NEED_RELOGIN" -eq 1 ]; then
     say ""
-    say "${C_B}重要：需要注销重登一次${C_R} —— input 组和新的 udev 规则都要重新登录才生效。"
+    say "${C_B}重要：需要注销重登一次${C_R} —— input 组成员身份要重新登录才生效（uaccess ACL 通常插拔后立刻可用）。"
 fi
 say "如果面板显示「鼠标未连接」：先动一下鼠标唤醒，再点面板里的「立即刷新」。"
 say "要卸载：bash install-mchose.sh --uninstall"

@@ -1,0 +1,8 @@
+# MCHOSE 鼠标 hidraw 访问权限
+# VID 0x2023 = MCHOSE / 迈从
+#
+# 注意：文件名必须以 70- 开头（早于 systemd 的 73-seat-late.rules）。
+# 那条规则里才有 `TAG=="uaccess" ... RUN{builtin}+="uaccess"`，
+# 把 uaccess 标签变成 ACL。放在 99- 里标签加得太晚，内置程序跑不到，
+# ACL 不会生效 —— 表现就是「没权限打开 /dev/hidrawN」。
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="2023", MODE="0660", GROUP="input", TAG+="uaccess"

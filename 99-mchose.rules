@@ -1,3 +1,0 @@
-# MCHOSE 鼠标 hidraw 访问权限
-# VID 0x2023 = MCHOSE / 迈从
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="2023", MODE="0660", GROUP="input", TAG+="uaccess"
