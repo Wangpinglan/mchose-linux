@@ -461,10 +461,21 @@ class MchoseButton extends PanelMenu.Button {
     }
 
     _updateOverview(d, connected) {
+        // 没权限 / 打不开设备：把原因直接写出来，别只说「未连接」
+        if (!connected && d?.error) {
+            const t = String(d.error).replace(/\s+/g, ' ').trim();
+            this._ovModel.text = d.need_auth ? '缺少设备权限' : '读取失败';
+            this._ovFw.text = t.length > 28 ? `${t.slice(0, 28)}…` : t;
+            this._ovFw.set_style('color: #e01b24;');
+            this._ovIcon.set_style('opacity: 0.4;');
+            return;
+        }
         this._ovModel.text = connected ? d.model : '鼠标未连接';
         this._ovFw.text = connected
             ? `固件 ${d.firmware ?? '—'}   PID ${d.pid ?? '—'}`
             : '插上接收器或唤醒鼠标';
+        // 清掉 _showFatal 可能留下的红色
+        this._ovFw.set_style('');
         // 左侧图标表示设备本身，右侧圆环显示电量
         this._ovIcon.icon_name = 'input-mouse-symbolic';
         this._ovIcon.set_style(connected
@@ -739,11 +750,34 @@ class MchoseButton extends PanelMenu.Button {
     _refresh(force = false) {
         if (this._destroyed || (this._busy && !force)) return;
         this._ext.daemon.readAll().then(res => {
-            if (this._destroyed || !res.ok)
+            if (this._destroyed)
                 return;
+            if (!res.ok) {
+                // 读失败沿用上一次的数据；但一次都没成功过就必须把原因说出来，
+                // 否则界面永远停在「正在连接…」，看不出是没插鼠标还是进程挂了
+                if (!this._state)
+                    this._showFatal(res.error || '辅助进程没有响应');
+                return;
+            }
             this._applyState(res.data);
-            // 读失败保留上一次的状态，不要整块清空成「未连接」
-        }).catch(e => logError(e, 'mchose refresh'));
+        }).catch(e => {
+            if (!this._destroyed && !this._state)
+                this._showFatal(e?.message ?? String(e));
+            else
+                logError(e, 'mchose refresh');
+        });
+    }
+
+    /** 一次都没连上过时，把失败原因直接写在概览卡上 */
+    _showFatal(msg) {
+        const text = String(msg).replace(/\s+/g, ' ').trim();
+        // 同时写进 journal，方便直接 grep
+        logError(new Error(text), 'mchose: 守护进程无响应');
+        this._ovModel.text = '连接失败';
+        this._ovFw.text = text.length > 28 ? `${text.slice(0, 28)}…` : text;
+        this._ovFw.set_style('color: #e01b24;');
+        this._ovIcon.set_style('opacity: 0.4;');
+        this._dpiHint.text = '守护进程没有响应，点「立即刷新」重试';
     }
 
     destroy() {

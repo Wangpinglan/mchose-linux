@@ -64,6 +64,7 @@ step() { printf '\n%s%s%s\n' "$C_B" "$*" "$C_R"; }
 
 DO_UDEV=1
 UNINSTALL=0
+NEED_RELOGIN=0
 for arg in "$@"; do
     case "$arg" in
         --no-udev)   DO_UDEV=0 ;;
@@ -104,6 +105,20 @@ if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]
             udevadm control --reload-rules 2>/dev/null || true
             udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
             ok "udev 规则已写入 $RULE"
+            # 兜底：部分系统 logind 不给 seat 会话补 uaccess ACL，
+            # 只靠规则还是打不开设备，把用户加进 input 组（规则里 GROUP="input"）
+            if id -nG "$SUDO_USER" | tr ' ' '\n' | grep -qx input; then
+                ok "$SUDO_USER 已在 input 组"
+            elif getent group input >/dev/null 2>&1; then
+                if usermod -aG input "$SUDO_USER"; then
+                    NEED_RELOGIN=1
+                    ok "已把 $SUDO_USER 加入 input 组（重登后生效）"
+                else
+                    warn "加入 input 组失败，请手动执行：sudo usermod -aG input $SUDO_USER"
+                fi
+            else
+                warn "系统没有 input 组，只能靠 uaccess 规则；若读不到设备请检查 udev"
+            fi
         fi
     else
         say "已指定 --no-udev，跳过系统配置"
@@ -255,6 +270,19 @@ if [ "$DO_UDEV" -eq 1 ]; then
             sudo udevadm control --reload-rules 2>/dev/null || true
             sudo udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
             ok "已写入 $RULE"
+            CUR_USER=$(id -un)
+            if id -nG "$CUR_USER" | tr ' ' '\n' | grep -qx input; then
+                ok "$CUR_USER 已在 input 组"
+            elif getent group input >/dev/null 2>&1; then
+                if sudo usermod -aG input "$CUR_USER"; then
+                    NEED_RELOGIN=1
+                    ok "已把 $CUR_USER 加入 input 组（重登后生效）"
+                else
+                    warn "加入 input 组失败，请手动执行：sudo usermod -aG input $CUR_USER"
+                fi
+            else
+                warn "系统没有 input 组，只能靠 uaccess 规则；若读不到设备请检查 udev"
+            fi
         else
             warn "写入规则失败，跳过。面板可能读不到设备。"
             warn "可稍后手动执行：echo '$RULE_TEXT' | sudo tee $RULE"
@@ -340,6 +368,10 @@ say "  mchose dpi         # 应列出六档 DPI"
 say ""
 if [ "$WAS_ENABLED" -eq 1 ]; then
     say "本次是更新安装，扩展已重新加载，无需注销。"
+fi
+if [ "$NEED_RELOGIN" -eq 1 ]; then
+    say ""
+    say "${C_B}重要：需要注销重登一次${C_R} —— input 组和新的 udev 规则都要重新登录才生效。"
 fi
 say "如果面板显示「鼠标未连接」：先动一下鼠标唤醒，再点面板里的「立即刷新」。"
 say "要卸载：bash install-mchose.sh --uninstall"

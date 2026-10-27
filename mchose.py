@@ -280,13 +280,10 @@ class Hijack:
         try:
             self.fd = os.open(path, os.O_RDWR)
         except PermissionError:
-            sys.exit(
-                f"没有权限打开 {path}。\n"
-                f"把当前用户加入 input 组并重登，或装一条 udev 规则：\n"
-                f'  echo \'SUBSYSTEM=="hidraw", ATTRS{{idVendor}}=="2023", MODE="0660", GROUP="input"\' \\\n'
-                f"    | sudo tee /etc/udev/rules.d/99-mchose.rules\n"
-                f"  sudo udevadm control --reload && sudo udevadm trigger"
-            )
+            # 注意：这里不能 sys.exit —— SystemExit 不是 Exception 的子类，
+            # 守护进程的 except Exception 拦不住，整个进程会被打死，
+            # 扩展端就只能一直显示「正在连接…」。
+            raise PermissionError(f"没有权限打开 {path}") from None
         self.lock()
 
     def lock(self):
@@ -846,7 +843,15 @@ def cmd_probe(args):
 
 
 def with_dev(dev, fn):
-    m = Mchose(dev)
+    try:
+        m = Mchose(dev)
+    except PermissionError as e:
+        print(e)
+        print("把当前用户加入 input 组并重登：")
+        print("  sudo usermod -aG input $USER")
+        print("或者确认 /etc/udev/rules.d/99-mchose.rules 已生效"
+              "（sudo udevadm control --reload && sudo udevadm trigger）")
+        return
     try:
         fn(m)
     except OSError as e:

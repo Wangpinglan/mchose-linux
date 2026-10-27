@@ -78,7 +78,12 @@ def save_state(**kw):
 
 
 def read_all():
-    dev, m = ensure_device()
+    try:
+        dev, m = ensure_device()
+    except PermissionError as e:
+        # 没权限时不要退出进程，把原因带回界面
+        reset_handle()
+        return {"connected": False, "need_auth": True, "error": str(e)}
     if dev is None:
         return {"connected": False}
 
