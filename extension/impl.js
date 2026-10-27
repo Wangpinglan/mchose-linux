@@ -382,45 +382,22 @@ class MchoseButton extends PanelMenu.Button {
             cr.stroke();
         }
 
-        // 中心文字。Cairo 用的是 toy API，不会给 emoji 做字体回退，
-        // 直接写 "⚡" 只会画出一个方框（tofu），所以充电闪电用路径画。
-        const charging = this._state?.charge_status === 1;
+        // 中心只画百分比数字。充电状态由顶栏的「100%⚡」表示；
+        // 这里不能塞 emoji —— Cairo 是 toy font API，不做字体回退，⚡ 会变成方框。
         const hasPct = pct !== null && pct !== undefined;
         const txt = hasPct ? `${pct}` : '—';
-        const showBolt = charging && hasPct;
 
         cr.selectFontFace('Sans', 0, 1);   // NORMAL, BOLD
-        cr.setFontSize(showBolt ? 12 : 15);
+        cr.setFontSize(15);
         const ext = cr.textExtents(txt);
-
-        const boltW = 6, boltH = 9, gap = 2;
-        const totalW = ext.width + (showBolt ? boltW + gap : 0);
-        let tx = cx - totalW / 2;
-
-        if (showBolt) {
-            this._drawBolt(cr, tx, cy - boltH / 2, boltW, boltH);
-            tx += boltW + gap;
-        }
-
-        cr.moveTo(tx - ext.xBearing, cy - ext.height / 2 - ext.yBearing);
-        const dim = !hasPct;
-        cr.setSourceRGBA(dim ? 0.6 : 0.98, dim ? 0.6 : 0.98, dim ? 0.6 : 0.98, 1.0);
+        cr.moveTo(cx - ext.width / 2 - ext.xBearing,
+                   cy - ext.height / 2 - ext.yBearing);
+        cr.setSourceRGBA(hasPct ? 0.98 : 0.6,
+                         hasPct ? 0.98 : 0.6,
+                         hasPct ? 0.98 : 0.6, 1.0);
         cr.showText(txt);
 
         // Cairo context 由 St 管理，不手动 $dispose
-    }
-
-    /** 手绘充电闪电：emoji 字符在 Cairo 里会变成方框 */
-    _drawBolt(cr, x, y, w, h) {
-        cr.moveTo(x + w * 0.60, y);
-        cr.lineTo(x + w * 0.08, y + h * 0.56);
-        cr.lineTo(x + w * 0.44, y + h * 0.56);
-        cr.lineTo(x + w * 0.32, y + h);
-        cr.lineTo(x + w * 0.92, y + h * 0.42);
-        cr.lineTo(x + w * 0.55, y + h * 0.42);
-        cr.closePath();
-        cr.setSourceRGBA(0.96, 0.79, 0.09, 1.0);
-        cr.fill();
     }
 
     // ---------------------------------------------------------- 状态更新
