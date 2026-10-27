@@ -11,8 +11,9 @@
 curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
 ```
 
-仓库地址按你的 git 配置填的，改名的话这里和 `extension/metadata.json` 一起改。首次装完要注销重登一次。
-详细步骤和手动方式见下面「[安装](#安装)」。
+仓库改名的话，这里和 `extension/metadata.json` 里的 `url` 一起改。
+需要先发一次 Release（见「[发布新版本](#发布新版本)」）这条命令才有效。
+首次装完要注销重登一次，详细步骤见「[安装](#安装)」。
 
 两种用法：
 
