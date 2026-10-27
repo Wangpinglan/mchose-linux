@@ -1,4 +1,4 @@
-# mchose-linux — MCHOSE A5 / AX5 Pro 系列鼠标的 Linux 驱动
+# mchose-linux — MCHOSE A5 / AX5 Pro 系列鼠标的 Linux 驱动，gnome拓展形式
 
 厂商驱动 `A5_AX5_Pro_ProMax_Drive_Ver2066.exe` 只有 Windows 版且早已停止更新。
 本项目通过逆向该驱动，在 Linux 上原生复刻了它的核心配置功能。
