@@ -55,6 +55,10 @@ bash dist/install-mchose.sh
 bash install-mchose.sh
 ```
 
+**不要加 `sudo` 运行。** 脚本只在写 udev 规则那一步自己请求提权；
+sudo 整个脚本会让 `HOME` 变成 `/root`，扩展装进 root 家目录，你的桌面会话看不到。
+（脚本已做保护：检测到 `SUDO_USER` 会自动降回你的用户，但别依赖它。）
+
 这个脚本里**内嵌了扩展本体（zip）和 udev 规则**，不联网、不需要克隆本仓库。
 它会：
 

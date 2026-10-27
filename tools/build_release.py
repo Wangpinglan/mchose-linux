@@ -73,6 +73,52 @@ for arg in "$@"; do
     esac
 done
 
+# ---------------------------------------------------------- sudo 误用保护
+# 用户常常直接 `sudo ./install-mchose.sh`，此时 HOME=/root，扩展会装进 root 家目录，
+# 桌面会话完全看不到（还把 enabled-extensions 写进 root 的 dconf）。
+# 处理方式：先以 root 做完系统级动作，再降回真实用户重跑文件安装。
+if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ] \
+   && [ "${MCHOSE_REEXEC:-0}" != "1" ]; then
+    step "检测到用 sudo 运行整个脚本"
+    if [ ! -f "$0" ]; then
+        die "请用普通用户运行，不要加 sudo。脚本只会在写 udev 规则时自己提权。"
+    fi
+
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6 || true)
+    REAL_UID=$(id -u "$SUDO_USER" 2>/dev/null || true)
+    if [ -z "${REAL_HOME:-}" ] || [ -z "${REAL_UID:-}" ] || [ ! -d "$REAL_HOME" ]; then
+        die "找不到用户 $SUDO_USER 的家目录。请改用普通用户直接运行：bash $0"
+    fi
+    say "不需要 sudo 整个脚本：扩展要装进 $REAL_HOME，不是 /root。"
+    say "先以 root 处理系统级配置，再切回 $SUDO_USER 装扩展。"
+
+    if [ "$DO_UDEV" -eq 1 ]; then
+        if [ "$UNINSTALL" -eq 1 ]; then
+            if [ -f "$RULE" ]; then
+                rm -f "$RULE"
+                udevadm control --reload-rules 2>/dev/null || true
+                ok "已删除 udev 规则"
+            fi
+        else
+            printf '%s\n' "$RULE_TEXT" > "$RULE"
+            udevadm control --reload-rules 2>/dev/null || true
+            udevadm trigger --subsystem-match=hidraw 2>/dev/null || true
+            ok "udev 规则已写入 $RULE"
+        fi
+    else
+        say "已指定 --no-udev，跳过系统配置"
+    fi
+
+    say "切换到 $SUDO_USER 继续…"
+    say ""
+    sudo -u "$SUDO_USER" -H \
+        env MCHOSE_REEXEC=1 \
+            XDG_RUNTIME_DIR="/run/user/$REAL_UID" \
+            DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$REAL_UID/bus" \
+        bash "$0" "$@" --no-udev
+    exit $?
+fi
+
 DEST="$HOME/.local/share/gnome-shell/extensions/$UUID"
 BIN="$HOME/.local/bin/mchose"
 RULE=/etc/udev/rules.d/99-mchose.rules
