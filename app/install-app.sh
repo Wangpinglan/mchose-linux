@@ -18,7 +18,7 @@ PREFIX="${HOME}/.local"
 LIB="${PREFIX}/lib/mchose-app"
 BIN="${PREFIX}/bin/mchose-gtk"
 DESKTOP="${PREFIX}/share/applications/io.github.wangpinglan.Mchose.desktop"
-ICON="${PREFIX}/share/icons/hicolor/scalable/apps/io.github.wangpinglan.Mchose.svg"
+ICON_DIR="${PREFIX}/share/icons/hicolor"
 RULE=/etc/udev/rules.d/70-mchose.rules
 
 DO_UDEV=1
@@ -37,7 +37,11 @@ done
 if [ "$UNINSTALL" -eq 1 ]; then
     echo "==> 卸载 MCHOSE GTK 应用"
     rm -rf "$LIB"
-    rm -f "$BIN" "$DESKTOP" "$ICON"
+    rm -f "$BIN" "$DESKTOP"
+    for size in 512 256 128 64; do
+        rm -f "${ICON_DIR}/${size}x${size}/apps/io.github.wangpinglan.Mchose.png"
+    done
+    rm -f "${ICON_DIR}/scalable/apps/io.github.wangpinglan.Mchose.svg"
     command -v update-desktop-database >/dev/null 2>&1 && \
         update-desktop-database "${PREFIX}/share/applications" 2>/dev/null || true
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
@@ -60,9 +64,10 @@ PY
 
 # ---------------------------------------------------------------- 文件
 echo "==> 安装到 ${LIB}"
-mkdir -p "${LIB}/mchose_app" "${PREFIX}/bin" \
-         "${PREFIX}/share/applications" \
-         "${PREFIX}/share/icons/hicolor/scalable/apps"
+mkdir -p "${LIB}/mchose_app" "${PREFIX}/bin" "${PREFIX}/share/applications"
+for size in 512 256 128 64; do
+    mkdir -p "${ICON_DIR}/${size}x${size}/apps"
+done
 
 install -m 644 "${HERE}/main.py" "${LIB}/main.py"
 install -m 644 "${HERE}/mchose_app/__init__.py" "${LIB}/mchose_app/__init__.py"
@@ -79,7 +84,12 @@ EOF
 chmod 755 "$BIN"
 
 install -m 644 "${HERE}/data/io.github.wangpinglan.Mchose.desktop" "$DESKTOP"
-install -m 644 "${HERE}/data/io.github.wangpinglan.Mchose.svg" "$ICON"
+for size in 512 256 128 64; do
+    install -m 644 "${HERE}/data/icons/io.github.wangpinglan.Mchose-${size}.png" \
+        "${ICON_DIR}/${size}x${size}/apps/io.github.wangpinglan.Mchose.png"
+done
+# 老版本装的是 SVG，换成 PNG 后清掉，免得图标缓存里留个旧图
+rm -f "${ICON_DIR}/scalable/apps/io.github.wangpinglan.Mchose.svg"
 
 command -v update-desktop-database >/dev/null 2>&1 && \
     update-desktop-database "${PREFIX}/share/applications" 2>/dev/null || true

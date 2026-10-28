@@ -51,6 +51,8 @@ class MchoseWindow(Adw.ApplicationWindow):
     def __init__(self, app):
         super().__init__(application=app, title="MCHOSE")
         self.set_default_size(520, 860)
+        # Wayland 下窗口图标由 app-id 决定，X11 下靠这个
+        self.set_icon_name("io.github.wangpinglan.Mchose")
 
         self._ctl = Controller()
         self._state = None
