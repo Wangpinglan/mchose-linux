@@ -262,7 +262,7 @@ app/                      GTK4 + libadwaita 桌面应用
   mchose_app/window.py    主窗口与交互
   mchose_app/widgets.py   电量圆环、档位圆点（Cairo 自绘）
   mchose_app/backend.py   设备句柄与后台线程
-  data/                   桌面项与多尺寸图标（由根目录 MCHOSE.png 生成）
+  data/                   桌面项与多尺寸图标（由 docs/mchose-wordmark.png 生成）
   install-app.sh          装到 ~/.local
 
 extension/                GNOME 扩展源码
@@ -275,9 +275,9 @@ extension/                GNOME 扩展源码
 tools/
   build_release.py        打包：生成单文件安装脚本 + 标准扩展 zip
   build_packages.py       打包：RPM + DEB（noarch，含扩展/应用/CLI/udev 规则）
-  make_icon.py            从 MCHOSE.png 生成各尺寸图标（需要 Pillow）
+  make_icon.py            从字标生成各尺寸图标（需要 Pillow）
 
-docs/                     截图
+docs/                     截图与图片素材（mchose-wordmark.png 是字标源文件）
 dist/                     打包产物（不入库，由 tools/ 里的脚本生成）
 PROTOCOL.md               协议逆向笔记：报文结构、命令码、字段偏移
 CONTRIBUTING.md           开发、调试扩展、打包与发版流程

@@ -8,7 +8,7 @@
 用法：
     python3 tools/make_icon.py [源图]
 
-默认源图是仓库根目录的 MCHOSE.png，输出到 app/data/icons/。
+默认源图是 docs/mchose-wordmark.png（原始字标），输出到 app/data/icons/。
 需要 Pillow（python3-pillow）。
 """
 
@@ -18,7 +18,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SRC = ROOT / "MCHOSE.png"
+DEFAULT_SRC = ROOT / "docs" / "mchose-wordmark.png"
 OUT_DIR = ROOT / "app" / "data" / "icons"
 
 SIZES = (512, 256, 128, 64)
