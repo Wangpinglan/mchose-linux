@@ -13,7 +13,6 @@
 curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
 ```
 
-仓库改名的话，这里和 `extension/metadata.json` 里的 `url` 一起改。
 这是三种安装方式里最省事的一种（GNOME 扩展），全部三种见「[安装](#安装)」：
 ① 一键脚本装扩展 · ② install/uninstall 脚本（开发）· ③ RPM/DEB 系统包。
 需要先发一次 Release（见「[发布新版本](#发布新版本)」）这条命令才有效。
@@ -88,7 +87,7 @@ RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.
 | 方式 | 装什么 | 位置 | 适合 |
 |------|--------|------|------|
 | ① GNOME 扩展 | 顶栏扩展 + CLI + udev 规则 | 用户级（`~/.local`） | 日常使用，一条命令 |
-| ② install / uninstall 脚本 | CLI + udev 规则 | 用户级 + `/etc` | 本机开发调试 |
+| ② install / uninstall 脚本 | CLI + udev 规则 | 用户级 + `/etc` | 已克隆仓库，想从源码跑 |
 | ③ RPM / DEB 包 | 扩展（系统级）+ GTK 应用 + CLI + udev 规则 | `/usr` + `/etc` | 想要桌面应用，交给包管理器 |
 
 顶栏扩展和 GTK 应用功能一样，二选一或都装都行；三条路装的 udev 规则是同一条
@@ -96,7 +95,7 @@ RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.
 
 ### ① GNOME 扩展（一键脚本）
 
-一条命令，别的电脑也能直接用：
+一条命令即可装好，无需克隆仓库：
 
 ```bash
 curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
@@ -125,19 +124,20 @@ bash install-mchose.sh --no-udev    # 不动系统文件（没有 sudo 时）
 gnome-extensions install --force mchose-mouse@local.shell-extension.zip
 ```
 
-这种情况 udev 规则要自己想办法（抄 `70-mchose.rules`，或用 ②③ 顺手装上）。
+这种方式不含 udev 规则，需要自行安装：复制 `70-mchose.rules` 到
+`/etc/udev/rules.d/`，或改用 ②③。
 
 卸载：`bash uninstall.sh`，见 ②。
 
-### ② install.sh / uninstall.sh（本机开发）
+### ② install.sh / uninstall.sh（源码脚本安装）
 
-仓库自带的一对脚本。`install.sh` 只装 CLI 与 udev 规则，扩展直接用仓库源码调试：
+适合已经克隆了仓库、或想从源码运行的人。`install.sh` 只装 CLI 与 udev 规则（不装扩展文件）：
 
 ```bash
 ./install.sh          # CLI → ~/.local/bin/mchose，udev 规则 → /etc
 ```
 
-开发扩展时把仓库的 `extension/` 拷贝（或软链）到
+想从源码运行扩展：把仓库的 `extension/` 拷贝（或软链）到
 `~/.local/share/gnome-shell/extensions/mchose-mouse@local`，改完代码重载扩展即可。
 
 `uninstall.sh` 负责反向清理，也是从 ①② 换到 ③ 的第一步：
@@ -197,6 +197,7 @@ python3 tools/build_release.py
 | `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包（方式 ③） |
 
 **文件名不要改**，`releases/latest/download/<文件名>` 是按名字取附件的。
+仓库如果改名，同步更新本 README 里的下载链接和 `extension/metadata.json` 的 `url`。
 
 ## 用法
 
@@ -296,7 +297,7 @@ self.xfer_write(group, code, params, length=len(params))
 mchose.py                 命令行工具 + 协议实现（零依赖，仅标准库）
 mchose_api.py             状态读写封装（守护进程和 GTK 应用共用）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
-install.sh                本机开发用：装 CLI 与 udev 规则
+install.sh                装 CLI 与 udev 规则（配合源码运行）
 uninstall.sh              卸载用户级安装，恢复到可直接装 RPM/DEB 的状态
 70-mchose.rules           udev 权限规则
 
@@ -325,8 +326,8 @@ dist/                     打包产物（不入库，用上面脚本生成）
 PROTOCOL.md               协议逆向笔记：报文结构、命令码、字段偏移
 ```
 
-`extension/` 与 `mchose.py` 是唯一真相，`dist/` 全部由 `tools/build_release.py`
-从它们生成，改完代码重新跑一次即可，不需要手工同步。
+仓库以 `extension/` 与 `mchose.py` 为源，`dist/` 下的产物全部由
+`tools/build_release.py` 生成，改完代码重新跑一次即可。
 
 逆向中间产物（`extract/` 厂商安装包解包、`src/` 反编译出的 C# 源码）体积大且含
 厂商二进制，放在 `.gitignore` 里不入库。查协议时看
@@ -334,5 +335,5 @@ PROTOCOL.md               协议逆向笔记：报文结构、命令码、字段
 
 ## 法律说明
 
-仅用于让自己合法拥有的硬件在 Linux 下可用。不含厂商代码，不含固件，
+仅用于在 Linux 下使用自己合法拥有的硬件。不含厂商代码，不含固件，
 不绕过任何授权或许可证校验。
