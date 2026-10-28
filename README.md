@@ -109,6 +109,24 @@ bash install-mchose.sh --uninstall  # 卸载（配 --no-udev 则保留 udev 规�
 
 要求：GNOME 45–51、Python 3.6+、任意架构（协议与架构无关）。
 
+### RPM / DEB 包（系统级安装）
+
+发行版包里同时包含 GNOME 扩展（系统级）、GTK 应用、CLI 和 udev 规则：
+
+```bash
+sudo dnf install ./mchose-1.2.0-1.fc44.noarch.rpm   # Fedora / RHEL / openSUSE
+sudo apt install ./mchose_1.2.0-1_all.deb           # Debian / Ubuntu
+```
+
+- 扩展装到 `/usr/share/gnome-shell/extensions/mchose-mouse@local`，
+  注销重登一次后 `gnome-extensions enable mchose-mouse@local` 启用
+- 之前用 `install.sh` 装过用户级扩展的话，先删掉
+  `~/.local/share/gnome-shell/extensions/mchose-mouse@local`——
+  同一个 UUID 两处都装，GNOME 会提示冲突
+- 卸载：`sudo dnf remove mchose` / `sudo apt remove mchose`
+- 从源码打这两个包：`python3 tools/build_packages.py`
+  （需要 `rpmbuild`；deb 不依赖 dpkg，用 `ar` + tar 组装）
+
 ### 用标准扩展包
 
 ```bash
@@ -128,7 +146,8 @@ gnome-extensions install --force dist/mchose-mouse@local.shell-extension.zip
 ### 重新打包
 
 ```bash
-python3 tools/build_release.py
+python3 tools/build_release.py      # 单文件安装器 + 标准扩展 zip
+python3 tools/build_packages.py     # RPM + DEB（需要 rpmbuild）
 ```
 
 `dist/.src` 是每次打包时从仓库自动收集的中间目录，不用手动维护。
@@ -139,12 +158,14 @@ python3 tools/build_release.py
 python3 tools/build_release.py
 ```
 
-然后在 GitHub 上新建 Release（tag 形如 `v1.0`），把这两个文件作为附件上传：
+然后在 GitHub 上新建 Release（tag 形如 `v1.2.0`），把这些文件作为附件上传：
 
 | 文件 | 用途 |
 |---|---|
 | `dist/install-mchose.sh` | 一键安装脚本，README 顶部的 `curl` 命令依赖它 |
 | `dist/mchose-mouse@local.shell-extension.zip` | 标准扩展包，可 `gnome-extensions install` |
+| `dist/mchose-<ver>-1.fc*.noarch.rpm` | Fedora / RHEL 系统包 |
+| `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包 |
 
 **文件名不要改**，`releases/latest/download/<文件名>` 是按名字取附件的。
 
@@ -266,6 +287,7 @@ extension/                GNOME 扩展源码
 
 tools/
   build_release.py        打包：生成单文件安装脚本 + 标准扩展 zip
+  build_packages.py       打包：RPM + DEB（noarch，含扩展/应用/CLI/udev 规则）
   make_icon.py            从 MCHOSE.png 生成各尺寸图标（需要 Pillow）
 
 docs/                     截图

@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+VER = (ROOT / "VERSION").read_text().strip()
 SRC = ROOT / "dist" / ".src"
 DIST = ROOT / "dist"
 UUID = "mchose-mouse@local"
@@ -426,7 +427,7 @@ def main() -> None:
     out = (
         TEMPLATE
         .replace("@@UUID@@", UUID)
-        .replace("@@VER@@", "1.0")
+        .replace("@@VER@@", VER)
         .replace("@@RULE@@", UDEV_RULE)
         .replace("@@B64MARK@@", "MCHOSE_EXT_ZIP_B64")
         .replace("@@B64@@", lines)

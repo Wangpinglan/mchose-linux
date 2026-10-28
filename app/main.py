@@ -22,7 +22,7 @@ from gi.repository import Adw, Gdk, Gio, Gtk  # noqa: E402
 from mchose_app.window import MchoseWindow  # noqa: E402
 
 APP_ID = "io.github.wangpinglan.Mchose"
-VERSION = "1.0.0"
+VERSION = "1.2.0"
 GITHUB_URL = "https://github.com/Wangpinglan/mchose-linux"
 
 
