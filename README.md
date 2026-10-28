@@ -43,7 +43,7 @@ Windows 端通过 `HidSharp` 调 `SetFeature` / `GetFeature`，Linux 端对应
 - 高级：静默高度、直线修正、按键消抖、休眠时间、配置文件
 
 ```bash
-bash dist/install-mchose.sh
+bash install-mchose.sh
 ```
 
 安装/卸载见「[安装](#安装) · ①」。
@@ -101,7 +101,8 @@ RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.
 curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
 ```
 
-或先下载再执行：
+或克隆仓库后执行根目录的 `install-mchose.sh`（与 Release 附件同源，
+main 分支上的版本可能比最新 Release 略新）：
 
 ```bash
 bash install-mchose.sh
@@ -253,6 +254,7 @@ DPI 和电量已用真机（A5 Pro + 4K 接收器，PID F017 / 接收器 F015）
 mchose.py                 命令行工具 + 协议实现（零依赖，仅标准库）
 mchose_api.py             状态读写封装（守护进程和 GTK 应用共用）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
+install-mchose.sh         方式 ① 的一键安装器（内嵌扩展 zip 与 udev 规则）
 install.sh                装 CLI 与 udev 规则（配合源码运行）
 uninstall.sh              卸载用户级安装，恢复到可直接装 RPM/DEB 的状态
 70-mchose.rules           udev 权限规则

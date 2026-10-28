@@ -57,13 +57,15 @@ python3 tools/build_packages.py     # RPM + DEB（需要 rpmbuild；deb 用 ar �
 1. 更新根目录 `VERSION`，同步 `app/main.py` 的 `VERSION` 和
    `extension/metadata.json` 的 `version`
 2. `python3 tools/build_release.py && python3 tools/build_packages.py`
-3. 提交、打 tag 并推送：
+3. 用新的 `dist/install-mchose.sh` 覆盖仓库根目录的同名文件并提交——
+   仓库里的脚本要和 Release 附件保持一致
+4. 提交、打 tag 并推送：
 
    ```bash
    git tag -a v1.2.1 -m "..." && git push origin main v1.2.1
    ```
 
-4. 在 GitHub 上新建 Release（tag 形如 `v1.2.0`），上传这些附件：
+5. 在 GitHub 上新建 Release（tag 形如 `v1.2.0`），上传这些附件：
 
 | 文件 | 用途 |
 |---|---|
