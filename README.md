@@ -127,6 +127,18 @@ sudo apt install ./mchose_1.2.0-1_all.deb           # Debian / Ubuntu
 - 从源码打这两个包：`python3 tools/build_packages.py`
   （需要 `rpmbuild`；deb 不依赖 dpkg，用 `ar` + tar 组装）
 
+### 卸载用户级安装
+
+换用 RPM/DEB 之前先跑一次，把 `install.sh` / `install-app.sh` 装的东西清干净，
+顺带删掉会跟 rpm 事务冲突的旧 `/etc/udev/rules.d/70-mchose.rules`：
+
+```bash
+bash uninstall.sh            # 动 /etc 前会确认，先备份
+bash uninstall.sh --dry-run  # 只看会做什么
+```
+
+它不动 gsettings 里的 enabled-extensions——装完系统包注销重登，扩展自动启用。
+
 ### 用标准扩展包
 
 ```bash
@@ -268,6 +280,7 @@ mchose.py                 命令行工具 + 协议实现（零依赖，仅标准
 mchose_api.py             状态读写封装（守护进程和 GTK 应用共用）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
 install.sh                本机开发用：装 CLI 与 udev 规则
+uninstall.sh              卸载用户级安装，恢复到可直接装 RPM/DEB 的状态
 70-mchose.rules           udev 权限规则
 
 app/                      GTK4 + libadwaita 桌面应用
