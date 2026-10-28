@@ -14,8 +14,10 @@ curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/
 ```
 
 仓库改名的话，这里和 `extension/metadata.json` 里的 `url` 一起改。
+这是三种安装方式里最省事的一种（GNOME 扩展），全部三种见「[安装](#安装)」：
+① 一键脚本装扩展 · ② install/uninstall 脚本（开发）· ③ RPM/DEB 系统包。
 需要先发一次 Release（见「[发布新版本](#发布新版本)」）这条命令才有效。
-首次装完要注销重登一次，详细步骤见「[安装](#安装)」。
+首次装完要注销重登一次。
 
 两种用法：
 
@@ -45,7 +47,7 @@ Windows 端通过 `HidSharp` 调 `SetFeature` / `GetFeature`，Linux 端对应
 bash dist/install-mchose.sh
 ```
 
-详见下面「安装」一节。
+安装/卸载见「[安装](#安装) · ①」。
 
 ## GTK 应用（libadwaita）
 
@@ -76,84 +78,99 @@ sudo dnf install gtk4 libadwaita python3-gobject
 
 它和扩展共用同一套协议代码（`mchose.py`）和状态组装（`mchose_api.py`），
 udev 规则也是同一条 `70-mchose.rules`，装过扩展的机器直接就能用。
+RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.sh` 装的
+用户级副本，`uninstall.sh` 也会一并清掉。
 
 ## 安装
 
-### 一条命令（也能装到别的电脑）
+三种方式按需选一种：
 
-把 `dist/install-mchose.sh`（约 45 KB）拷到目标机器，然后：
+| 方式 | 装什么 | 位置 | 适合 |
+|------|--------|------|------|
+| ① GNOME 扩展 | 顶栏扩展 + CLI + udev 规则 | 用户级（`~/.local`） | 日常使用，一条命令 |
+| ② install / uninstall 脚本 | CLI + udev 规则 | 用户级 + `/etc` | 本机开发调试 |
+| ③ RPM / DEB 包 | 扩展（系统级）+ GTK 应用 + CLI + udev 规则 | `/usr` + `/etc` | 想要桌面应用，交给包管理器 |
+
+顶栏扩展和 GTK 应用功能一样，二选一或都装都行；三条路装的 udev 规则是同一条
+`70-mchose.rules`，装过任意一种即可。
+
+### ① GNOME 扩展（一键脚本）
+
+一条命令，别的电脑也能直接用：
+
+```bash
+curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
+```
+
+或先下载再执行：
 
 ```bash
 bash install-mchose.sh
 ```
 
-**不要加 `sudo` 运行。** 脚本只在写 udev 规则那一步自己请求提权；
-sudo 整个脚本会让 `HOME` 变成 `/root`，扩展装进 root 家目录，你的桌面会话看不到。
-（脚本已做保护：检测到 `SUDO_USER` 会自动降回你的用户，但别依赖它。）
+- 脚本内嵌扩展 zip 与 udev 规则，不联网、不需要克隆本仓库
+- **不要加 sudo 运行**——只有写 udev 规则那一步会自己请求提权；sudo 整个脚本
+  会让扩展装进 root 的家目录，你的桌面会话看不到（脚本已做 `SUDO_USER` 保护，别依赖它）
+- **首次安装必须注销重登**：GNOME 只在启动时扫描扩展目录；同一台机器上更新则即时生效
 
-这个脚本里**内嵌了扩展本体（zip）和 udev 规则**，不联网、不需要克隆本仓库。
-它会：
-
-1. 解包到 `~/.local/share/gnome-shell/extensions/mchose-mouse@local/`
-2. 装命令行工具到 `~/.local/bin/mchose`
-3. 写 `/etc/udev/rules.d/70-mchose.rules`（要一次 sudo），让普通用户读写 hidraw
-4. 把 uuid 加进 `enabled-extensions`
-
-**首次安装必须注销重登** —— GNOME 只在启动时扫描扩展目录，新目录当场看不见。
-在同一台机器上更新则不需要：脚本会自动 disable/enable，界面立即生效。
+其他选项：
 
 ```bash
 bash install-mchose.sh --no-udev    # 不动系统文件（没有 sudo 时）
-bash install-mchose.sh --uninstall  # 卸载（配 --no-udev 则保留 udev 规则）
 ```
 
-要求：GNOME 45–51、Python 3.6+、任意架构（协议与架构无关）。
+只想要扩展本体（不要 CLI）的话，用标准扩展 zip：
 
-### RPM / DEB 包（系统级安装）
+```bash
+gnome-extensions install --force mchose-mouse@local.shell-extension.zip
+```
 
-发行版包里同时包含 GNOME 扩展（系统级）、GTK 应用、CLI 和 udev 规则：
+这种情况 udev 规则要自己想办法（抄 `70-mchose.rules`，或用 ②③ 顺手装上）。
+
+卸载：`bash uninstall.sh`，见 ②。
+
+### ② install.sh / uninstall.sh（本机开发）
+
+仓库自带的一对脚本。`install.sh` 只装 CLI 与 udev 规则，扩展直接用仓库源码调试：
+
+```bash
+./install.sh          # CLI → ~/.local/bin/mchose，udev 规则 → /etc
+```
+
+开发扩展时把仓库的 `extension/` 拷贝（或软链）到
+`~/.local/share/gnome-shell/extensions/mchose-mouse@local`，改完代码重载扩展即可。
+
+`uninstall.sh` 负责反向清理，也是从 ①② 换到 ③ 的第一步：
+
+```bash
+bash uninstall.sh --dry-run   # 只看会做什么
+bash uninstall.sh             # 动 /etc 前会确认，先备份
+```
+
+它卸掉用户级的一切（扩展、GTK 应用、CLI、桌面项、图标，含 `app/install-app.sh`
+装的东西），并把 `/etc/udev/rules.d` 里**不属于 mchose 包**的旧规则删掉——
+无主的 `70-mchose.rules` 会让 ③ 的 rpm 事务报文件冲突，`99-mchose.rules`
+则是早期失效写法。gsettings 的 enabled-extensions 故意不动：
+之后装 ③ 并注销重登，扩展自动启用。
+
+### ③ RPM / DEB 包（系统级）
+
+发行版包一次装齐 GNOME 扩展（系统级）、GTK4 桌面应用、CLI 和 udev 规则：
 
 ```bash
 sudo dnf install ./mchose-1.2.0-1.fc44.noarch.rpm   # Fedora / RHEL / openSUSE
 sudo apt install ./mchose_1.2.0-1_all.deb           # Debian / Ubuntu
 ```
 
-- 扩展装到 `/usr/share/gnome-shell/extensions/mchose-mouse@local`，
-  注销重登一次后 `gnome-extensions enable mchose-mouse@local` 启用
-- 之前用 `install.sh` 装过用户级扩展的话，先删掉
-  `~/.local/share/gnome-shell/extensions/mchose-mouse@local`——
-  同一个 UUID 两处都装，GNOME 会提示冲突
+- 扩展装在 `/usr/share/gnome-shell/extensions/mchose-mouse@local`，
+  注销重登一次后启用；之前装过用户级并启用过的话会自动启用，
+  全新机器手动执行一次 `gnome-extensions enable mchose-mouse@local`
+- **从 ①② 换过来先跑 `bash uninstall.sh`**：同一个扩展 UUID 两处都装会冲突
 - 卸载：`sudo dnf remove mchose` / `sudo apt remove mchose`
-- 从源码打这两个包：`python3 tools/build_packages.py`
-  （需要 `rpmbuild`；deb 不依赖 dpkg，用 `ar` + tar 组装）
+- 从源码打包：`python3 tools/build_packages.py`（需要 `rpmbuild`；
+  deb 用 `ar` + tar 组装，不依赖 dpkg）
 
-### 卸载用户级安装
-
-换用 RPM/DEB 之前先跑一次，把 `install.sh` / `install-app.sh` 装的东西清干净，
-顺带删掉会跟 rpm 事务冲突的旧 `/etc/udev/rules.d/70-mchose.rules`：
-
-```bash
-bash uninstall.sh            # 动 /etc 前会确认，先备份
-bash uninstall.sh --dry-run  # 只看会做什么
-```
-
-它不动 gsettings 里的 enabled-extensions——装完系统包注销重登，扩展自动启用。
-
-### 用标准扩展包
-
-```bash
-gnome-extensions install --force dist/mchose-mouse@local.shell-extension.zip
-```
-
-它只含扩展本身，不含 udev 规则和 CLI，装完还需手动做第 3 步。
-
-### 从源码装（本机开发用）
-
-```bash
-./install.sh                       # CLI + udev 规则
-```
-
-然后改代码、`tools/build_release.py` 打包，或直接把仓库文件放进扩展目录。
+## 打包与发布
 
 ### 重新打包
 
@@ -174,10 +191,10 @@ python3 tools/build_release.py
 
 | 文件 | 用途 |
 |---|---|
-| `dist/install-mchose.sh` | 一键安装脚本，README 顶部的 `curl` 命令依赖它 |
+| `dist/install-mchose.sh` | 一键安装脚本（方式 ①），README 顶部的 `curl` 命令依赖它 |
 | `dist/mchose-mouse@local.shell-extension.zip` | 标准扩展包，可 `gnome-extensions install` |
-| `dist/mchose-<ver>-1.fc*.noarch.rpm` | Fedora / RHEL 系统包 |
-| `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包 |
+| `dist/mchose-<ver>-1.fc*.noarch.rpm` | Fedora / RHEL 系统包（方式 ③） |
+| `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包（方式 ③） |
 
 **文件名不要改**，`releases/latest/download/<文件名>` 是按名字取附件的。
 
