@@ -30,6 +30,7 @@ FILES = [
     "daemon.js",
     "stylesheet.css",
     "mchose.py",
+    "mchose_api.py",
     "mchose-daemon.py",
 ]
 EXECUTABLE = {"mchose.py", "mchose-daemon.py"}
@@ -391,32 +392,13 @@ def sync_src() -> None:
     """
     SRC.mkdir(parents=True, exist_ok=True)
     for name in FILES:
-        if name in ("mchose.py", "mchose-daemon.py"):
+        if name in ("mchose.py", "mchose_api.py", "mchose-daemon.py"):
             origin = ROOT / name
         else:
             origin = EXTENSION / name
         if not origin.exists():
             raise SystemExit(f"找不到源文件: {origin}")
         shutil.copy2(origin, SRC / name)
-
-
-def sync_src() -> None:
-    """把仓库里的源码收进 dist/.src。
-
-    Python 侧在仓库根目录，扩展侧在 extension/ —— 仓库自身就是唯一真相，
-    clone 下来即可重新打包，不依赖本机已安装的扩展。
-    """
-    SRC.mkdir(parents=True, exist_ok=True)
-    for name in FILES:
-        if name in ("mchose.py", "mchose-daemon.py"):
-            origin = ROOT / name
-        else:
-            origin = EXTENSION / name
-        if not origin.exists():
-            raise SystemExit(f"找不到源文件: {origin}")
-        shutil.copy2(origin, SRC / name)
-
-
 def build_zip() -> Path:
     DIST.mkdir(parents=True, exist_ok=True)
     zp = DIST / f"{UUID}.shell-extension.zip"

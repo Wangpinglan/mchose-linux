@@ -45,6 +45,36 @@ bash dist/install-mchose.sh
 
 详见下面「安装」一节。
 
+## GTK 应用（libadwaita）
+
+不想装扩展的话，也可以用桌面应用：GTK4 + libadwaita 1.x，窗口式界面，
+不依赖 GNOME Shell 版本，KDE / Sway 下同样能跑（只要有 GTK4 和 libadwaita）。
+
+<p align="center">
+  <img src="docs/app-light.png" width="330" alt="浅色">
+  <img src="docs/app-dark.png" width="330" alt="深色">
+</p>
+
+- 顶部概览：型号、固件、PID、有线/接收器、电量环
+- DPI 六档：右侧直接改数字，点色点切当前档
+- 回报率、静默高度、休眠时间、按键消抖、直线修正、配置文件 1–5
+- 底部没有「保存」按钮：改完立刻写入设备，成功弹 toast
+
+```bash
+bash app/install-app.sh        # 装到 ~/.local，菜单里出现「MCHOSE 鼠标设置」
+mchose-gtk                     # 或者直接命令行启动
+bash app/install-app.sh --uninstall
+```
+
+依赖：`gtk4`、`libadwaita`、`python3-gobject`。Fedora 上：
+
+```bash
+sudo dnf install gtk4 libadwaita python3-gobject
+```
+
+它和扩展共用同一套协议代码（`mchose.py`）和状态组装（`mchose_api.py`），
+udev 规则也是同一条 `70-mchose.rules`，装过扩展的机器直接就能用。
+
 ## 安装
 
 ### 一条命令（也能装到别的电脑）
@@ -212,9 +242,18 @@ self.xfer_write(group, code, params, length=len(params))
 
 ```
 mchose.py                 命令行工具 + 协议实现（零依赖，仅标准库）
+mchose_api.py             状态读写封装（守护进程和 GTK 应用共用）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
 install.sh                本机开发用：装 CLI 与 udev 规则
 70-mchose.rules           udev 权限规则
+
+app/                      GTK4 + libadwaita 桌面应用
+  main.py                 入口，Adw.Application
+  mchose_app/window.py    主窗口与交互
+  mchose_app/widgets.py   电量圆环、档位圆点（Cairo 自绘）
+  mchose_app/backend.py   设备句柄与后台线程
+  data/                   桌面项与图标
+  install-app.sh          装到 ~/.local
 
 extension/                GNOME 扩展源码
   metadata.json
@@ -226,6 +265,7 @@ extension/                GNOME 扩展源码
 tools/
   build_release.py        打包：生成单文件安装脚本 + 标准扩展 zip
 
+docs/                     截图
 dist/                     打包产物（不入库，用上面脚本生成）
 PROTOCOL.md               协议逆向笔记：报文结构、命令码、字段偏移
 ```

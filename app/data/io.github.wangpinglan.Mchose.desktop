@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MCHOSE 鼠标设置
+GenericName=Mouse Settings
+Comment=配置 MCHOSE A5 / AX5 Pro 系列鼠标的 DPI、回报率、静默高度等
+Exec=mchose-gtk
+Icon=io.github.wangpinglan.Mchose
+Terminal=false
+Categories=Settings;HardwareSettings;
+Keywords=MCHOSE;mouse;DPI;polling;hidraw;
+StartupNotify=true
