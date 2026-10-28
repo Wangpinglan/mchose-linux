@@ -47,7 +47,7 @@ if [ "$UNINSTALL" -eq 1 ]; then
         update-desktop-database "${PREFIX}/share/applications" 2>/dev/null || true
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
         gtk-update-icon-cache -f -t "${PREFIX}/share/icons/hicolor" 2>/dev/null || true
-    echo "    已删除 $LIB、$BIN、桌面项和图标"
+    echo "    已删除应用、mchose / mchose-gtk 命令、桌面项和图标"
     echo "    udev 规则没有动（扩展还在用），要删：sudo rm -f $RULE"
     exit 0
 fi
