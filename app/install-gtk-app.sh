@@ -2,9 +2,9 @@
 # 安装 MCHOSE GTK4 应用（libadwaita）
 #
 # 用法：
-#   bash app/install-app.sh              安装 / 更新
-#   bash app/install-app.sh --no-udev    不动系统文件
-#   bash app/install-app.sh --uninstall  卸载
+#   bash app/install-gtk-app.sh              安装 / 更新
+#   bash app/install-gtk-app.sh --no-udev    不动系统文件
+#   bash app/install-gtk-app.sh --uninstall  卸载
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

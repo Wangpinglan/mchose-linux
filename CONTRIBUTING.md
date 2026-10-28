@@ -12,7 +12,7 @@
 ## 从源码运行扩展
 
 ```bash
-./install.sh          # 先装 CLI 与 udev 规则
+./install-cli.sh      # 先装 CLI 与 udev 规则
 cp -r extension/ ~/.local/share/gnome-shell/extensions/mchose-mouse@local
 # 或软链，改完代码即时生效
 ```
@@ -57,7 +57,7 @@ python3 tools/build_packages.py     # RPM + DEB（需要 rpmbuild；deb 用 ar �
 1. 更新根目录 `VERSION`，同步 `app/main.py` 的 `VERSION` 和
    `extension/metadata.json` 的 `version`
 2. `python3 tools/build_release.py && python3 tools/build_packages.py`
-3. 用新的 `dist/install-mchose.sh` 覆盖仓库根目录的同名文件并提交——
+3. 用新的 `dist/install-gnome-extension.sh` 覆盖仓库根目录的同名文件并提交——
    仓库里的脚本要和 Release 附件保持一致
 4. 提交、打 tag 并推送：
 
@@ -69,7 +69,7 @@ python3 tools/build_packages.py     # RPM + DEB（需要 rpmbuild；deb 用 ar �
 
 | 文件 | 用途 |
 |---|---|
-| `dist/install-mchose.sh` | 一键安装脚本（安装方式 ①），README 顶部的 `curl` 命令依赖它 |
+| `dist/install-gnome-extension.sh` | 一键安装脚本（安装方式 ①），README 顶部的 `curl` 命令依赖它 |
 | `dist/mchose-mouse@local.shell-extension.zip` | 标准扩展包，可 `gnome-extensions install` |
 | `dist/mchose-<ver>-1.fc*.noarch.rpm` | Fedora / RHEL 系统包（安装方式 ③） |
 | `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包（安装方式 ③） |

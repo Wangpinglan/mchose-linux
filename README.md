@@ -10,7 +10,7 @@
 ## 快速安装
 
 ```bash
-curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
+curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-gnome-extension.sh | bash
 ```
 
 这是三种安装方式里最省事的一种（GNOME 扩展），全部三种见「[安装](#安装)」：
@@ -43,7 +43,7 @@ Windows 端通过 `HidSharp` 调 `SetFeature` / `GetFeature`，Linux 端对应
 - 高级：静默高度、直线修正、按键消抖、休眠时间、配置文件
 
 ```bash
-bash install-mchose.sh
+bash install-gnome-extension.sh
 ```
 
 安装/卸载见「[安装](#安装) · ①」。
@@ -64,9 +64,9 @@ bash install-mchose.sh
 - 底部没有「保存」按钮：改完立刻写入设备，成功弹 toast
 
 ```bash
-bash app/install-app.sh        # 装到 ~/.local，菜单里出现「MCHOSE 鼠标设置」
+bash app/install-gtk-app.sh    # 装到 ~/.local，菜单里出现「MCHOSE 鼠标设置」
 mchose-gtk                     # 或者直接命令行启动
-bash app/install-app.sh --uninstall
+bash app/install-gtk-app.sh --uninstall
 ```
 
 依赖：`gtk4`、`libadwaita`、`python3-gobject`。Fedora 上：
@@ -77,7 +77,7 @@ sudo dnf install gtk4 libadwaita python3-gobject
 
 它和扩展共用同一套协议代码（`mchose.py`）和状态组装（`mchose_api.py`），
 udev 规则也是同一条 `70-mchose.rules`，装过扩展的机器直接就能用。
-RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.sh` 装的
+RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-gtk-app.sh` 装的
 用户级副本，`uninstall.sh` 也会一并清掉。
 
 ## 安装
@@ -87,7 +87,7 @@ RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.
 | 方式 | 装什么 | 位置 | 适合 |
 |------|--------|------|------|
 | ① GNOME 扩展 | 顶栏扩展 + CLI + udev 规则 | 用户级（`~/.local`） | 日常使用，一条命令 |
-| ② install / uninstall 脚本 | CLI + udev 规则 | 用户级 + `/etc` | 已克隆仓库，想从源码跑 |
+| ② install-cli / uninstall 脚本 | CLI + udev 规则 | 用户级 + `/etc` | 已克隆仓库，想从源码跑 |
 | ③ RPM / DEB 包 | 扩展（系统级）+ GTK 应用 + CLI + udev 规则 | `/usr` + `/etc` | 想要桌面应用，交给包管理器 |
 
 顶栏扩展和 GTK 应用功能一样，二选一或都装都行；三条路装的 udev 规则是同一条
@@ -98,14 +98,14 @@ RPM/DEB 包（安装方式 ③）里已经自带这个应用；`app/install-app.
 一条命令即可装好，无需克隆仓库：
 
 ```bash
-curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-mchose.sh | bash
+curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/install-gnome-extension.sh | bash
 ```
 
-或克隆仓库后执行根目录的 `install-mchose.sh`（与 Release 附件同源，
+或克隆仓库后执行根目录的 `install-gnome-extension.sh`（与 Release 附件同源，
 main 分支上的版本可能比最新 Release 略新）：
 
 ```bash
-bash install-mchose.sh
+bash install-gnome-extension.sh
 ```
 
 - 脚本内嵌扩展 zip 与 udev 规则，不联网、不需要克隆本仓库
@@ -116,7 +116,7 @@ bash install-mchose.sh
 其他选项：
 
 ```bash
-bash install-mchose.sh --no-udev    # 不动系统文件（没有 sudo 时）
+bash install-gnome-extension.sh --no-udev    # 不动系统文件（没有 sudo 时）
 ```
 
 只想要扩展本体（不要 CLI）的话，用标准扩展 zip：
@@ -130,12 +130,12 @@ gnome-extensions install --force mchose-mouse@local.shell-extension.zip
 
 卸载：`bash uninstall.sh`，见 ②。
 
-### ② install.sh / uninstall.sh（源码脚本安装）
+### ② install-cli.sh / uninstall.sh（源码脚本安装）
 
-适合已经克隆了仓库、或想从源码运行的人。`install.sh` 只装 CLI 与 udev 规则（不装扩展文件）：
+适合已经克隆了仓库、或想从源码运行的人。`install-cli.sh` 只装 CLI 与 udev 规则（不装扩展文件）：
 
 ```bash
-./install.sh          # CLI → ~/.local/bin/mchose，udev 规则 → /etc
+./install-cli.sh      # CLI → ~/.local/bin/mchose，udev 规则 → /etc
 ```
 
 想从源码运行扩展：把仓库的 `extension/` 拷贝（或软链）到
@@ -148,7 +148,7 @@ bash uninstall.sh --dry-run   # 只看会做什么
 bash uninstall.sh             # 动 /etc 前会确认，先备份
 ```
 
-它卸掉用户级的一切（扩展、GTK 应用、CLI、桌面项、图标，含 `app/install-app.sh`
+它卸掉用户级的一切（扩展、GTK 应用、CLI、桌面项、图标，含 `app/install-gtk-app.sh`
 装的东西），并把 `/etc/udev/rules.d` 里**不属于 mchose 包**的旧规则删掉——
 无主的 `70-mchose.rules` 会让 ③ 的 rpm 事务报文件冲突，`99-mchose.rules`
 则是早期失效写法。gsettings 的 enabled-extensions 故意不动：
@@ -254,8 +254,8 @@ DPI 和电量已用真机（A5 Pro + 4K 接收器，PID F017 / 接收器 F015）
 mchose.py                 命令行工具 + 协议实现（零依赖，仅标准库）
 mchose_api.py             状态读写封装（守护进程和 GTK 应用共用）
 mchose-daemon.py          常驻守护进程，扩展通过 stdin/stdout 的 JSON 与它通信
-install-mchose.sh         方式 ① 的一键安装器（内嵌扩展 zip 与 udev 规则）
-install.sh                装 CLI 与 udev 规则（配合源码运行）
+install-gnome-extension.sh         方式 ① 的一键安装器（内嵌扩展 zip 与 udev 规则）
+install-cli.sh            装 CLI 与 udev 规则（配合源码运行）
 uninstall.sh              卸载用户级安装，恢复到可直接装 RPM/DEB 的状态
 70-mchose.rules           udev 权限规则
 
@@ -265,7 +265,7 @@ app/                      GTK4 + libadwaita 桌面应用
   mchose_app/widgets.py   电量圆环、档位圆点（Cairo 自绘）
   mchose_app/backend.py   设备句柄与后台线程
   data/                   桌面项与多尺寸图标（由 docs/mchose-wordmark.png 生成）
-  install-app.sh          装到 ~/.local
+  install-gtk-app.sh      装桌面应用到 ~/.local
 
 extension/                GNOME 扩展源码
   metadata.json

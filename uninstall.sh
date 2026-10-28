@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # mchose 用户级安装卸载脚本。
 #
-# 清掉 install.sh / install-app.sh / 手动安装留下的所有用户级文件，
+# 清掉 install-cli.sh / install-gtk-app.sh / install-gnome-extension.sh /
+# 手动安装留下的所有用户级文件，
 # 并把 /etc 里不属于 mchose 包的旧 udev 规则一并清走，
 # 卸完就是干净状态，可以直接安装系统包：
 #

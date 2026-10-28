@@ -5,7 +5,7 @@
     python3 tools/build_release.py
 
 产物：
-    dist/install-mchose.sh                     ← 单文件，拷到别的机器直接跑
+    dist/install-gnome-extension.sh                     ← 单文件，拷到别的机器直接跑
     dist/mchose-mouse@local.shell-extension.zip ← 标准扩展包，可手动安装
 """
 import base64
@@ -45,9 +45,9 @@ TEMPLATE = r"""#!/usr/bin/env bash
 # MCHOSE 鼠标控制面板 —— Fedora / GNOME 一键安装
 #
 # 用法：
-#   bash install-mchose.sh            安装或更新
-#   bash install-mchose.sh --no-udev  只装扩展，不动系统（没有 sudo 时用）
-#   bash install-mchose.sh --uninstall 卸载（配 --no-udev 则保留 udev 规则）
+#   bash install-gnome-extension.sh            安装或更新
+#   bash install-gnome-extension.sh --no-udev  只装扩展，不动系统（没有 sudo 时用）
+#   bash install-gnome-extension.sh --uninstall 卸载（配 --no-udev 则保留 udev 规则）
 #
 # 内含扩展本体（zip，base64 内嵌）与 hidraw udev 规则，不需要联网。
 
@@ -77,7 +77,7 @@ for arg in "$@"; do
 done
 
 # ---------------------------------------------------------- sudo 误用保护
-# 用户常常直接 `sudo ./install-mchose.sh`，此时 HOME=/root，扩展会装进 root 家目录，
+# 用户常常直接 `sudo ./install-gnome-extension.sh`，此时 HOME=/root，扩展会装进 root 家目录，
 # 桌面会话完全看不到（还把 enabled-extensions 写进 root 的 dconf）。
 # 处理方式：先以 root 做完系统级动作，再降回真实用户重跑文件安装。
 if [ "$(id -u)" -eq 0 ] && [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ] \
@@ -381,7 +381,7 @@ if [ "$NEED_RELOGIN" -eq 1 ]; then
     say "${C_B}重要：需要注销重登一次${C_R} —— input 组成员身份要重新登录才生效（uaccess ACL 通常插拔后立刻可用）。"
 fi
 say "如果面板显示「鼠标未连接」：先动一下鼠标唤醒，再点面板里的「立即刷新」。"
-say "要卸载：bash install-mchose.sh --uninstall"
+say "要卸载：bash install-gnome-extension.sh --uninstall"
 """
 
 
@@ -433,7 +433,7 @@ def main() -> None:
         .replace("@@B64@@", lines)
     )
 
-    sh = DIST / "install-mchose.sh"
+    sh = DIST / "install-gnome-extension.sh"
     sh.write_text(out, encoding="utf-8")
     sh.chmod(0o755)
 
