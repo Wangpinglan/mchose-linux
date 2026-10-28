@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# 安装 MCHOSE 鼠标配置工具
+# 开发用：装 CLI 与 udev 规则（配合仓库源码运行；普通安装用根目录的
+# install-gnome-extension.sh 或 app/install-gtk-app.sh）
 set -euo pipefail
 
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 # 必须是 70-：uaccess 标签要在 73-seat-late.rules 之前打上，否则 ACL 不生效
 RULE_DST="/etc/udev/rules.d/70-mchose.rules"
@@ -10,7 +11,7 @@ RULE_OLD="/etc/udev/rules.d/99-mchose.rules"
 
 echo "==> 安装脚本到 ${BIN_DIR}/mchose"
 mkdir -p "$BIN_DIR"
-install -m 755 "${HERE}/mchose.py" "${BIN_DIR}/mchose"
+install -m 755 "${REPO}/mchose.py" "${BIN_DIR}/mchose"
 
 echo "==> 检查 PATH"
 case ":$PATH:" in
@@ -20,10 +21,10 @@ case ":$PATH:" in
 esac
 
 echo "==> 安装 udev 规则（免 sudo 访问设备）"
-if [[ -f "$RULE_DST" ]] && cmp -s "${HERE}/70-mchose.rules" "$RULE_DST"; then
+if [[ -f "$RULE_DST" ]] && cmp -s "${REPO}/70-mchose.rules" "$RULE_DST"; then
   echo "    ${RULE_DST} 已是最新"
 else
-  sudo install -m 644 "${HERE}/70-mchose.rules" "$RULE_DST"
+  sudo install -m 644 "${REPO}/70-mchose.rules" "$RULE_DST"
   [[ -f "$RULE_OLD" ]] && sudo rm -f "$RULE_OLD"
   sudo udevadm control --reload-rules
   sudo udevadm trigger --subsystem-match=hidraw

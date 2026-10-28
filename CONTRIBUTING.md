@@ -12,7 +12,7 @@
 ## 从源码运行扩展
 
 ```bash
-./install-cli.sh      # 先装 CLI 与 udev 规则
+tools/install-cli.sh   # 先装 CLI 与 udev 规则
 cp -r extension/ ~/.local/share/gnome-shell/extensions/mchose-mouse@local
 # 或软链，改完代码即时生效
 ```

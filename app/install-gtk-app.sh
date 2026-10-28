@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 安装 MCHOSE GTK4 应用（libadwaita）
+# 安装 MCHOSE GTK4 桌面应用（libadwaita），同时装上 mchose 命令行。
 #
 # 用法：
 #   bash app/install-gtk-app.sh              安装 / 更新
@@ -17,6 +17,7 @@ PYTHON=/usr/bin/python3
 PREFIX="${HOME}/.local"
 LIB="${PREFIX}/lib/mchose-app"
 BIN="${PREFIX}/bin/mchose-gtk"
+BIN_CLI="${PREFIX}/bin/mchose"
 DESKTOP="${PREFIX}/share/applications/io.github.wangpinglan.Mchose.desktop"
 ICON_DIR="${PREFIX}/share/icons/hicolor"
 RULE=/etc/udev/rules.d/70-mchose.rules
@@ -37,7 +38,7 @@ done
 if [ "$UNINSTALL" -eq 1 ]; then
     echo "==> 卸载 MCHOSE GTK 应用"
     rm -rf "$LIB"
-    rm -f "$BIN" "$DESKTOP"
+    rm -f "$BIN" "$BIN_CLI" "$DESKTOP"
     for size in 512 256 128 64; do
         rm -f "${ICON_DIR}/${size}x${size}/apps/io.github.wangpinglan.Mchose.png"
     done
@@ -82,6 +83,13 @@ cat > "$BIN" <<EOF
 exec "${PYTHON}" "${LIB}/main.py" "\$@"
 EOF
 chmod 755 "$BIN"
+
+# 命令行工具也一并装上（零依赖，直接跑仓库里的 mchose.py）
+cat > "$BIN_CLI" <<EOF
+#!/bin/sh
+exec "${PYTHON}" "${LIB}/mchose.py" "\$@"
+EOF
+chmod 755 "$BIN_CLI"
 
 install -m 644 "${HERE}/data/io.github.wangpinglan.Mchose.desktop" "$DESKTOP"
 for size in 512 256 128 64; do
