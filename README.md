@@ -15,7 +15,7 @@ curl -fsSL https://github.com/wangpinglan/mchose-linux/releases/latest/download/
 
 这是三种安装方式里最省事的一种（GNOME 扩展），全部三种见「[安装](#安装)」：
 ① 一键脚本装扩展 · ② install/uninstall 脚本（开发）· ③ RPM/DEB 系统包。
-需要先发一次 Release（见「[发布新版本](#发布新版本)」）这条命令才有效。
+命令从 GitHub Release 拉取脚本，如果 404 就用「[安装](#安装)」里的其他方式。
 首次装完要注销重登一次。
 
 两种用法：
@@ -170,35 +170,6 @@ sudo apt install ./mchose_1.2.0-1_all.deb           # Debian / Ubuntu
 - 从源码打包：`python3 tools/build_packages.py`（需要 `rpmbuild`；
   deb 用 `ar` + tar 组装，不依赖 dpkg）
 
-## 打包与发布
-
-### 重新打包
-
-```bash
-python3 tools/build_release.py      # 单文件安装器 + 标准扩展 zip
-python3 tools/build_packages.py     # RPM + DEB（需要 rpmbuild）
-```
-
-`dist/.src` 是每次打包时从仓库自动收集的中间目录，不用手动维护。
-
-### 发布新版本
-
-```bash
-python3 tools/build_release.py
-```
-
-然后在 GitHub 上新建 Release（tag 形如 `v1.2.0`），把这些文件作为附件上传：
-
-| 文件 | 用途 |
-|---|---|
-| `dist/install-mchose.sh` | 一键安装脚本（方式 ①），README 顶部的 `curl` 命令依赖它 |
-| `dist/mchose-mouse@local.shell-extension.zip` | 标准扩展包，可 `gnome-extensions install` |
-| `dist/mchose-<ver>-1.fc*.noarch.rpm` | Fedora / RHEL 系统包（方式 ③） |
-| `dist/mchose_<ver>-1_all.deb` | Debian / Ubuntu 系统包（方式 ③） |
-
-**文件名不要改**，`releases/latest/download/<文件名>` 是按名字取附件的。
-仓库如果改名，同步更新本 README 里的下载链接和 `extension/metadata.json` 的 `url`。
-
 ## 用法
 
 ```bash
@@ -256,21 +227,6 @@ Usage Page `0xFFFF`、64 字节 Feature（`06ffff 0900 a101 ... 9540 b102`），
 DPI 和电量已用真机（A5 Pro + 4K 接收器，PID F017 / 接收器 F015）验证通过。
 `mchose dpiprobe` 会打印原始收发帧，排查协议不符时用。
 
-## 加新功能
-
-`mchose.py` 里 `Mchose` 类的方法都是一行帧构造：
-
-```python
-# 读：命令码 | 0x80，参数从 [7] 开始
-r = self.xfer_read(group, code, params, length=len(params))
-# 写
-self.xfer_write(group, code, params, length=len(params))
-```
-
-返回值 `r` 是 65 字节应答，`r[1] == 0xA1` 表示设备确认。
-参数区从 `r[7]` 开始，但有些命令的应答会偏移一位（`r[8]`），
-具体看 PROTOCOL.md 里每个命令的说明。
-
 ## 已知坑
 
 - **udev 规则必须以 `70-` 开头**。`systemd` 在 `73-seat-late.rules` 里才有
@@ -322,12 +278,13 @@ tools/
   make_icon.py            从 MCHOSE.png 生成各尺寸图标（需要 Pillow）
 
 docs/                     截图
-dist/                     打包产物（不入库，用上面脚本生成）
+dist/                     打包产物（不入库，由 tools/ 里的脚本生成）
 PROTOCOL.md               协议逆向笔记：报文结构、命令码、字段偏移
+CONTRIBUTING.md           开发、调试扩展、打包与发版流程
 ```
 
-仓库以 `extension/` 与 `mchose.py` 为源，`dist/` 下的产物全部由
-`tools/build_release.py` 生成，改完代码重新跑一次即可。
+仓库以 `extension/` 与 `mchose.py` 为源，`dist/` 下的产物全部由 `tools/`
+里的脚本生成。想改代码、加协议命令、打包发版，见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 逆向中间产物（`extract/` 厂商安装包解包、`src/` 反编译出的 C# 源码）体积大且含
 厂商二进制，放在 `.gitignore` 里不入库。查协议时看
